@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>pyMessageBridge - Admin Panel</title>
+    <style>
+        body {
+            background-color: #E0E0E0;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <h1>pyMessageBridge</h1>
+    <hr>
+    <h2>Whitelist:</h2>
+    <div class="add-number">
+        <input type="text" id="number-input">
+        <button id="add-button" onclick="postWhitelist()">Add Number</button>
+        <button id="clear-button" onclick="clearWhitelist()">Clear Whitelist</button>
+    </div>
+    <div class="whitelist" id="whitelist"></div>
+    <br>
+    <h2>Log:</h2>
+    <div class="log" id="log"></div>
+
+    <script>
+        async function getWhitelist() {
+            const response = await fetch("http://127.0.0.1:8000/admin/whitelist");
+            const data = await response.json();
+
+            console.log(data);
+
+            if (data.length == 0) {
+                document.getElementById('whitelist').innerHTML += `<br>Whitelist is empty!`;
+            }
+            else {
+                for (let i = 0; i < data.length; i++) {
+                document.getElementById('whitelist').innerHTML += `<br>Number: ${data[i]}`;
+                }
+            }
+        }
+        getWhitelist();
+
+        async function getLog() {
+            const response = await fetch("http://127.0.0.1:8000/security/by/obfuscation/admin/log");
+            const data = await response.json();
+
+            console.log(data);
+
+            document.getElementById('log').innerHTML += `${data}`;
+        }
+        getLog();
+
+        async function postWhitelist() {
+            // settings for fetch post
+            let newNumber = document.getElementById('number-input').value;
+
+            const settings = {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    Accept: 'application/json', 
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    number: newNumber
+                })
+            };
+
+            // Generate & Send Fetch POST
+            try {
+                console.log("Sending POST request...");
+                var response = await fetch('http://127.0.0.1:8000/admin/whitelist/post', settings);
+                var responseJSON = await response.json();
+                console.log(responseJSON); // server response code
+
+                // Reload page
+                location.reload();
+            }
+            catch (error) {
+                return error;
+            }
+        }
+
+        async function clearWhitelist() {
+            const response = await fetch("http://127.0.0.1:8000/admin/whitelist/clear");
+            const data = await response.json();
+
+            // Reload page
+            location.reload();
+        }
+    </script>
+</body>
+</html>

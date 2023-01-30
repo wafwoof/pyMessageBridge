@@ -1,0 +1,15 @@
+{
+	"routes": {
+		"/remote": {
+			"disabled": true
+		}
+	},
+	"webhooks": [
+		{
+			"url": "http://127.0.0.1:8000/forward"
+		}
+	],
+	"webServer": {
+		"port": 3001
+	}
+}

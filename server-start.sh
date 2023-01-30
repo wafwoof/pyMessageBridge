@@ -1,0 +1,1 @@
+bash server-kill.sh && uvicorn server:app --reload
