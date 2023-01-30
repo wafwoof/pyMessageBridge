@@ -12,6 +12,10 @@ Features of pyMessageBridge:
 - Local & remote message log file (MacOS rightly blocks it by default, I will leave this up to the end-user)
 -  A remote command feature that works by sending a "¥" character followed by a pre-determined command (Covered in more detail below)
 
+![pyMessageBridge Admin Panel](/static/Screen%20Shot%202023-01-29%20at%2011.14.17%20PM.png)
+
+A very basic graphical overview for those who want it.
+
 ## How to setup
 
 Before you do anything else: disable mac power settings in system preferences to prevent the server from going to sleep. Since this is intended for business environments where downtime is unacceptable: I recommend pm2 as a process manager.
@@ -37,7 +41,7 @@ Now we must setup the server itself.
 - Python 3+ (3.11 really speeds up certain things)
 - uvicorn, fastapi, requests, pm2 (optional, but recommended)
 
-Start by running bash server-start.sh in the terminal. If everything is configured correctly, it should start without any error messages.
+Start by running `bash server-start.sh` in the terminal. If everything is configured correctly, it should start without any error messages.
 
 Troubleshooting tips:
 - restart your terminal every so often
@@ -46,7 +50,21 @@ Troubleshooting tips:
 
 That's it! You now have a working pyMessageBridge server.
 
-#### Text commands
+## Text commands
 
-There are currently 
+Security warning! Change the default commands in the server to avoid anyone being able to take it down. The default character ( ¥ ) can also be changed to anything you like.
 
+There are currently 7 primary commands:
+- ¥help 
+- ¥whitelist 
+- ¥unwhitelist 
+- ¥seewhitelist
+- ¥clearwhitelist
+- ¥weather
+- ¥random
+
+## Planned features
+
+- Teams integration
+- Text command whitelist
+- Admin Panel tunneling

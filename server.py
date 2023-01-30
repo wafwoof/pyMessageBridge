@@ -39,7 +39,13 @@ async def get_body(request: Request):
 
     # Write to the log file before the message is interpreted.
     with open("log.txt", "a") as log: # nothing fancy, plaintext
-        log.write(str(message))
+        # get size of log file in kilobytes
+        logSize = os.path.getsize("log.txt") / 1000
+        # if the log file is larger than 1000 kilobytes, clear it.
+        if logSize > 1000:
+            log.truncate(0)
+        # write the message to the log file.
+        log.write(str(datetime.datetime.now()) + " : " + str(message))
         log.write("\n")
     
     # INTERPRET COMMANDS
@@ -148,6 +154,6 @@ print("pyMessageBridge Version 0.1.0 - Current date/time: " + datetime.datetime.
 print("Visit: http://localhost:8000/admin to get started!\n")
 print("THIS IS DEVELOPMENT SOFTWARE AND COMES WITH ABSOLUTELY NO WARRANTY.\n")
 print("Available Text Commands:")
-print("¥help, ¥whitelist, ¥seewhitelist, ¥clearwhitelist, ¥weather, ¥random\n")
+print("¥help, ¥whitelist, ¥unwhitelist, ¥seewhitelist, ¥clearwhitelist, ¥weather, ¥random\n")
 print("Available Endpoints:")
 print("/forward, /security/by/obfuscation/getlog, /admin, /admin/whitelist, /admin/whitelist/post, /admin/whitelist/clear\n")
