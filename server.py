@@ -1,5 +1,5 @@
 # iMessage Forwading Server (requires: MacOS 10.15+ & jared & python 3+)
-# MVP: 1
+# Version: 0.1.0
 # Written by: Kazei McQuaid
 # Admin Panel: http://127.0.0.1:8000/admin
 # Submit requests to: http://127.0.0.1:8000/forward
