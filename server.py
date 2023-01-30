@@ -36,6 +36,11 @@ async def get_body(request: Request):
     
     # console log just the message with no sugar
     print(message)
+
+    # Write to the log file before the message is interpreted.
+    with open("log.txt", "a") as log: # nothing fancy, plaintext
+        log.write(str(message))
+        log.write("\n")
     
     # INTERPRET COMMANDS
     # Command Symbol: ¥
@@ -44,20 +49,41 @@ async def get_body(request: Request):
         # get the command.
         command = data.get("body")["message"][1:]
         print("Command:", command)
-        if command in ["kill -9", "antiquing"]: # shutdown the server.
+        if command in ["antiquing"]: # shutdown the server.
             os.system("kill -9 $(ps -A | grep python | awk '{print $1}')")
-        elif command in["weather", "weather ", "temp", "temp ", "wind", "wind "]: # get the weather.
+        elif command in ["help", "help ", "?"]: # get a list of commands.
+            message = repr("¥help - View this message. ¥whitelist - Whitelist the number you send this from. ¥unwhitelist - Remove your number from the whitelist. ¥seewhitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.")
+            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
+        elif command in ["whitelist", "whitelist "]: # add a number to the whitelist.
+            whitelist.append(handle)
+            message = repr("Your number is now on the whitelist.")
+            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
+        elif command in ["unwhitelist", "unwhitelist "]: # remove your number from the whitelist.
+            whitelist.remove(handle)
+            message = repr("Your number has been removed from the whitelist.")
+            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
+        elif command in ["seewhitelist", "seewhitelist "]: # view the whitelist.
+            message = repr(whitelist)
+            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
+        elif command in ["clearwhitelist", "clearwhitelist "]: # clear the whitelist.
+            whitelist.clear()
+            message = repr("Whitelist Cleared.")
+            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
+        elif command in["weather", "weather "]: # get the weather.
             temp = requests.get("https://wttr.in/Vancouver?format=4").text[0:30]
             print("Temperature:", repr(temp))
             message = repr(temp)
             os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
-        elif command in ["random", "random ", "rnd", "rnd "]: # get a random word.
+        elif command in ["random", "random "]: # get a random word.
             # get a random word from a dictionary api.
             word = requests.get("https://random-word-api.herokuapp.com/word?number=1").text[2:-2]
             message = repr("Your Word Is: " + "'" + word + "'")
             os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
         else: # if the command is not recognized, return an error.
             print("Command not recognized.")
+            # Do not send an error message, this will use up resources and you can solve your own problems.
+            #message = repr("Command not recognized.")
+            #os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
             return
 
     # END INTERPRET COMMANDS
@@ -76,12 +102,7 @@ async def get_body(request: Request):
             print("send command:", sendCommand)
             print("Contacting:", num)
             os.system(sendCommand)
-
-    
-    # Write to a json log file.
-    with open("log.txt", "a") as log:
-        log.write(str(message))
-        log.write("\n")
+            print("Message sent to:", num)
 
     # END FORWARDING TO WHITE LISTED NUMBERS
 
@@ -126,5 +147,7 @@ def delete_whitelist():
 print("pyMessageBridge Version 0.1.0 - Current date/time: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 print("Visit: http://localhost:8000/admin to get started!\n")
 print("THIS IS DEVELOPMENT SOFTWARE AND COMES WITH ABSOLUTELY NO WARRANTY.\n")
+print("Available Text Commands:")
+print("¥help, ¥whitelist, ¥seewhitelist, ¥clearwhitelist, ¥weather, ¥random\n")
 print("Available Endpoints:")
 print("/forward, /security/by/obfuscation/getlog, /admin, /admin/whitelist, /admin/whitelist/post, /admin/whitelist/clear\n")

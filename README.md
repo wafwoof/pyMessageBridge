@@ -10,7 +10,7 @@ Features of pyMessageBridge:
 - Web admin panel for adding numbers to the whitelist
     - http://localhost:8000/admin
 - Local & remote message log file (MacOS rightly blocks it by default, I will leave this up to the end-user)
--  A command system for remote kill-switch and other power user features
+-  A remote command feature that works by sending a "¥" character followed by a pre-determined command (Covered in more detail below)
 
 ## How to setup
 
@@ -33,8 +33,20 @@ Now we must setup the server itself.
 
 #### server dependencies:
 - MacOS 10.15+
+- an iMessage account linked to an iPhone that you wish to share with your team
 - Python 3+ (3.11 really speeds up certain things)
 - uvicorn, fastapi, requests, pm2 (optional, but recommended)
 
-Start by running ./server-start.sh in the terminal. If everything is configured correctly, it should start without any error messages.
+Start by running bash server-start.sh in the terminal. If everything is configured correctly, it should start without any error messages.
+
+Troubleshooting tips:
+- restart your terminal every so often
+- restart your mac a few times between steps in the setup process
+- send a few test messages to confirm desired functionality before packing the server away for production 
+
+That's it! You now have a working pyMessageBridge server.
+
+#### Text commands
+
+There are currently 
 

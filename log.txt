@@ -1,1 +1,24 @@
 Beginning of log.txt
+'¥help - View this message. ¥whitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.'
+'¥help - View this message. ¥whitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.'
+('+17789531726', 'sent to tech phone:', '-¥help - View this message. ¥whitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.')
+('+17789531726', 'sent to tech phone:', '-¥help - View this message. ¥whitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.')
+[]
+('+17789531726', 'sent to tech phone:', '-[]')
+('+17789531726', 'sent to tech phone:', '-[]')
+'Your number is now on the whitelist.'
+[]
+('+17789531726', 'sent to tech phone:', '-[]')
+('+17789531726', 'sent to tech phone:', '-[]')
+'Whitelist Cleared.'
+('+17789531726', 'sent to tech phone:', '-Whitelist Cleared.')
+('+17789531726', 'sent to tech phone:', '-Whitelist Cleared.')
+[]
+('+17789531726', 'sent to tech phone:', '-[]')
+'¥help - View this message. whitelist - Whitelist the number you send this from. ¥seewhitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.'
+'¥help - View this message. whitelist - Whitelist the number you send this from. ¥seewhitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.'
+('+17789531726', 'sent to tech phone:', '-[]')
+('+17789531726', 'sent to tech phone:', '-¥help - View this message. whitelist - Whitelist the number you send this from. ¥seewhitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.')
+('+17789531726', 'sent to tech phone:', '-¥help - View this message. whitelist - Whitelist the number you send this from. ¥seewhitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.')
+('+17789531726', 'sent to tech phone:', '-¥help - View this message. whitelist - Whitelist the number you send this from. ¥seewhitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.')
+('+17789531726', 'sent to tech phone:', '-¥help - View this message. whitelist - Whitelist the number you send this from. ¥seewhitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.')

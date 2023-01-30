@@ -10,10 +10,16 @@
             background-color: #E0E0E0;
             font-family: Arial, Helvetica, sans-serif;
         }
+        code {
+            font-family: monospace;
+            /* seperate each line */
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
     </style>
 </head>
 <body>
-    <h1>pyMessageBridge</h1>
+    <h1>pyMessageBridge - Admin Panel</h1>
     <hr>
     <h2>Whitelist:</h2>
     <div class="add-number">
@@ -50,7 +56,7 @@
 
             console.log(data);
 
-            document.getElementById('log').innerHTML += `${data}`;
+            document.getElementById('log').innerHTML += `<code>${data}</code>`;
         }
         getLog();
 
