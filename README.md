@@ -79,6 +79,7 @@ There are currently 7 primary commands:
 
 ## Planned features
 
+- Message queue architecture 
+- Proper reliabilty stress testing
 - Teams integration
-- Text command whitelist
-- Admin Panel tunneling
+- Admin panel tunneling for remote login
