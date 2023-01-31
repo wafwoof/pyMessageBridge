@@ -3,15 +3,36 @@
 # Written by: Kazei McQuaid
 # Admin Panel: http://127.0.0.1:8000/admin
 # Submit requests to: http://127.0.0.1:8000/forward
+
+if __name__ == '__main__':
+    print("This file is not meant to be run directly. Please use: python3 -m uvicorn server:app")
+
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+import json
 import os
 import requests
 import datetime
 
-print("\nThe server is starting...\n")
+print("\nThe server is starting...")
+
+# Load server.config.json file
+try:
+    with open ("server.config.json") as configFile:
+        config = json.load(configFile)
+except Exception as error:
+    raise error
+finally:
+    configFile.close()
+    print("Config file loaded...")
+
+global whitelist
+whitelist = [] # WHITELIST: numbers that will receive the message, including the host will create a loop.
+for number in config["managerWhitelist"]: # add permanent manager numbers to the whitelist.
+    whitelist.append(number)
+
 
 app = FastAPI(openapi_url=None) # Leaving openapi on is a potential security risk, just saying.
 
@@ -23,18 +44,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-global whitelist # define whitelist as a global variable.
-whitelist = [] # WHITELIST: numbers that will receive the message, including the host will create a loop.
+def sendMessage(num, message):
+    try:
+        os.system("osascript sendMessage.applescript -%s -%s"%(int(num), str(message)))
+    except Exception as error:
+        print("Error sending message:", error)
+        raise error
 
 # RECEIVE JARED WEBHOOK
 @app.post("/forward")
 async def get_body(request: Request):
     data = await request.json()
     handle = data.get("sender")["handle"]
-    senderIsMe = data.get("sender")["isMe"]
-    message = (handle, "sent to tech phone:", data.get("body")["message"])
-    
-    # console log just the message with no sugar
+    recipient = data.get("recipient")["handle"]
+    global message
+    message = (handle, "SENT:", data.get("body")["message"])
     print(message)
 
     # Write to the log file before the message is interpreted.
@@ -47,70 +71,79 @@ async def get_body(request: Request):
         # write the message to the log file.
         log.write(str(datetime.datetime.now()) + " : " + str(message))
         log.write("\n")
-    
-    # INTERPRET COMMANDS
-    # Command Symbol: ¥
-    if data.get("body")["message"][0][:1] == "¥":
-        print("Command received.")
-        # get the command.
-        command = data.get("body")["message"][1:]
-        print("Command:", command)
-        if command in ["antiquing"]: # shutdown the server.
-            os.system("kill -9 $(ps -A | grep python | awk '{print $1}')")
-        elif command in ["help", "help ", "?"]: # get a list of commands.
-            message = repr("¥help - View this message. ¥whitelist - Whitelist the number you send this from. ¥unwhitelist - Remove your number from the whitelist. ¥seewhitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.")
-            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
-        elif command in ["whitelist", "whitelist "]: # add a number to the whitelist.
-            whitelist.append(handle)
-            message = repr("Your number is now on the whitelist.")
-            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
-        elif command in ["unwhitelist", "unwhitelist "]: # remove your number from the whitelist.
-            whitelist.remove(handle)
-            message = repr("Your number has been removed from the whitelist.")
-            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
-        elif command in ["seewhitelist", "seewhitelist "]: # view the whitelist.
-            message = repr(whitelist)
-            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
-        elif command in ["clearwhitelist", "clearwhitelist "]: # clear the whitelist.
-            whitelist.clear()
-            message = repr("Whitelist Cleared.")
-            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
-        elif command in["weather", "weather "]: # get the weather.
-            temp = requests.get("https://wttr.in/Vancouver?format=4").text[0:30]
-            print("Temperature:", repr(temp))
-            message = repr(temp)
-            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
-        elif command in ["random", "random "]: # get a random word.
-            # get a random word from a dictionary api.
-            word = requests.get("https://random-word-api.herokuapp.com/word?number=1").text[2:-2]
-            message = repr("Your Word Is: " + "'" + word + "'")
-            os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
-        else: # if the command is not recognized, return an error.
-            print("Command not recognized.")
-            # Do not send an error message, this will use up resources and you can solve your own problems.
-            #message = repr("Command not recognized.")
-            #os.system("osascript sendMessage.applescript -%s -%s"%(int(handle), str(message)))
-            return
-
-    # END INTERPRET COMMANDS
 
     # BEGIN FORWARDING TO WHITE LISTED NUMBERS
 
-    # Check to see if message is from the tech phone.
-    if senderIsMe == True:
-        return
-    elif senderIsMe == False:
+    # Check to see if the message is a command.
+    if data.get("body")["message"][0][:1] == config["textCommandSymbol"]:
+        pass # Forwarding commands is handled by the command interpreter.
+    # Check to see if message is from the tech phone & if outgoing messages are being forwarded.
+    elif config["forwardOutgoingMessages"] == False:
+        print("Outgoing messages are not being forwarded. This behavior can be changed in server.config.json")
+        pass
+    # Check to see if the techphone is sending a message to itself.
+    elif handle == recipient:
+        print("Infinite loop detected. Do nothing.")
+        pass
+    else:
         # Forward incoming tech phone messages to numbers contained in the whitelist.
+        print("Forwarding message to whitelist...", end="")
         for num in whitelist:
             modifiedMessage = ("\"" + handle + " SENT: " + message + "\"")
             print(modifiedMessage)
             sendCommand = "osascript sendMessage.applescript -%s -%s"%(int(num), str(modifiedMessage))
-            print("send command:", sendCommand)
-            print("Contacting:", num)
             os.system(sendCommand)
             print("Message sent to:", num)
+        # print without newline
+        print(" DONE")
 
     # END FORWARDING TO WHITE LISTED NUMBERS
+
+    # INTERPRET COMMANDS
+    if data.get("body")["message"][0][:1] == config["textCommandSymbol"]: # command symbol is ¥ by default.
+        print("Command detected.")
+        command = data.get("body")["message"][1:] # chop off the ¥ symbol.
+        print("Command:", command)
+        # COMMAND LIST
+        if command in ["antiquing"]: # shutdown the server.
+            os.system("kill -9 $(ps -A | grep python | awk '{print $1}')")
+            print("Server shutdown by remote text command.")
+        elif command in ["help", "help ", "?"]: # get a list of commands.
+            message = repr("¥help - View this message. ¥whitelist - Whitelist the number you send this from. ¥unwhitelist - Remove your number from the whitelist. ¥seewhitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.")
+            sendMessage(handle, message)
+        elif command in ["whitelist", "whitelist "]: # add a number to the whitelist.
+            whitelist.append(handle)
+            message = repr("Your number is now on the whitelist.")
+            sendMessage(handle, message)
+        elif command in ["unwhitelist", "unwhitelist "]: # remove your number from the whitelist.
+            whitelist.remove(handle)
+            message = repr("Your number has been removed from the whitelist.")
+            sendMessage(handle, message)
+        elif command in ["seewhitelist", "seewhitelist "]: # view the whitelist.
+            message = repr(whitelist)
+            sendMessage(handle, message)
+        elif command in ["clearwhitelist", "clearwhitelist "]: # clear the whitelist.
+            whitelist.clear()
+            message = repr("Whitelist Cleared.")
+            sendMessage(handle, message)
+        elif command in["weather", "weather "]: # get the weather.
+            temp = requests.get("https://wttr.in/Vancouver?format=4").text[0:30]
+            print("Temperature:", repr(temp))
+            message = repr(temp)
+            sendMessage(handle, message)
+        elif command in ["random", "random "]: # get a random word.
+            # get a random word from a dictionary api.
+            word = requests.get("https://random-word-api.herokuapp.com/word?number=1").text[2:-2]
+            message = repr("Your Word Is: " + "'" + word + "'")
+            sendMessage(handle, message)
+        else: # if the command is not recognized, return an error.
+            print("Command not recognized.")
+            # Do not send an error message, this will use up resources and you can solve your own problems.
+            #message = repr("Command not recognized.")
+            #sendMessage(handle, message)
+
+    # END INTERPRET COMMANDS
+# END RECEIVE JARED WEBHOOK
 
 
 # HTTP GET LOG (for backup)
@@ -150,7 +183,7 @@ def delete_whitelist():
 
 
 # Console Log
-print("pyMessageBridge Version 0.1.0 - Current date/time: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+print("\npyMessageBridge Version 0.1.0 - Current date/time: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 print("Visit: http://localhost:8000/admin to get started!\n")
 print("THIS IS DEVELOPMENT SOFTWARE AND COMES WITH ABSOLUTELY NO WARRANTY.\n")
 print("Available Text Commands:")

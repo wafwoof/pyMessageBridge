@@ -17,6 +17,7 @@
             word-wrap: break-word;
         }
     </style>
+    <!-- All combined to be sent as one file to keep the server simple. -->
 </head>
 <body>
     <h1>pyMessageBridge - Admin Panel</h1>
@@ -44,7 +45,7 @@
             }
             else {
                 for (let i = 0; i < data.length; i++) {
-                document.getElementById('whitelist').innerHTML += `<br>Number: ${data[i]}`;
+                document.getElementById('whitelist').innerHTML += `<br>• Number: ${data[i]}`;
                 }
             }
         }
