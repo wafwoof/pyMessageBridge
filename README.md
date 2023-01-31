@@ -41,18 +41,32 @@ Now we must setup the server itself.
 - Python 3+ (3.11 really speeds up certain things)
 - uvicorn, fastapi, requests, pm2 (optional, but recommended)
 
-Start by running `bash server-start.sh` in the terminal. If everything is configured correctly, it should start without any error messages.
+Clone the project, install all required dependencies, create `/pyMessageBridge/log.txt` and `/pyMessageBridge/server.config.txt` (**very important files!**).
+
+The config file is a simple json file with a object containing:
+- techphoneNumber
+    - an integer for preventing infinite loops
+- managerWhitelist
+    - an array for restart presistent numbers
+- textCommandSymbol
+    - a character symbol for triggering command interpretation
+- forwardOutgoingMessages
+    - a boolean 
+
+Now, start the server by running `bash server-start.sh` in the terminal. If everything is configured correctly, it should start without any error messages. Note: you will have to clear the old server binds each time you re-run the server. Do this by running `bash server-kill.sh` and then start the server normally.
 
 Troubleshooting tips:
-- restart your terminal every so often
-- restart your mac a few times between steps in the setup process
+- restart your terminal often
+- restart your mac a few times between steps during initial installation
 - send a few test messages to confirm desired functionality before packing the server away for production 
 
 That's it! You now have a working pyMessageBridge server.
 
+Config settings are in: `/pyMessageBridge/server.config.txt`. 
+
 ## Text commands
 
-Security warning! Change the default commands in the server to avoid anyone being able to take it down. The default character ( ¥ ) can also be changed to anything you like.
+**Security warning!** Change the default commands in the server to avoid anyone being able to take it down. The default character ( ¥ ) can also be changed to anything you like.
 
 There are currently 7 primary commands:
 - ¥help 
