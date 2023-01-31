@@ -5,7 +5,11 @@
 # Submit requests to: http://127.0.0.1:8000/forward
 
 if __name__ == '__main__':
-    print("This file is not meant to be run directly. Please use: python3 -m uvicorn server:app")
+    print("\npyMessageBridge Version 0.1.0 ")
+    print("Incorrect usage. Please run the server with the following command:")
+    print("\"python3 -m uvicorn server:app\"")
+    print("For more information, please visit: https://www.github.com/wafwoof/pyMessageBridge")
+    exit()
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
@@ -46,7 +50,7 @@ app.add_middleware(
 
 def sendMessage(num, message):
     try:
-        os.system("osascript sendMessage.applescript -%s -%s"%(int(num), str(message)))
+        os.system("osascript sendMessage.applescript %s %s"%(int(num), str(message)))
     except Exception as error:
         print("Error sending message:", error)
         raise error
@@ -65,8 +69,7 @@ async def get_body(request: Request):
     with open("log.txt", "a") as log: # nothing fancy, plaintext
         # get size of log file in kilobytes
         logSize = os.path.getsize("log.txt") / 1000
-        # if the log file is larger than 1000 kilobytes, clear it.
-        if logSize > 1000:
+        if logSize > 1000: # 1000kb
             log.truncate(0)
         # write the message to the log file.
         log.write(str(datetime.datetime.now()) + " : " + str(message))
@@ -77,25 +80,23 @@ async def get_body(request: Request):
     # Check to see if the message is a command.
     if data.get("body")["message"][0][:1] == config["textCommandSymbol"]:
         pass # Forwarding commands is handled by the command interpreter.
-    # Check to see if message is from the tech phone & if outgoing messages are being forwarded.
     elif config["forwardOutgoingMessages"] == False:
         print("Outgoing messages are not being forwarded. This behavior can be changed in server.config.json")
         pass
-    # Check to see if the techphone is sending a message to itself.
     elif handle == recipient:
-        print("Infinite loop detected. Do nothing.")
+        print("Phone texted itself. Ignoring.")
         pass
     else:
         # Forward incoming tech phone messages to numbers contained in the whitelist.
-        print("Forwarding message to whitelist...", end="")
+        print("Forwarding message to whitelist", end="")
+        modifiedMessage = ("\"" + handle + " SENT: " + message + "\"")
         for num in whitelist:
-            modifiedMessage = ("\"" + handle + " SENT: " + message + "\"")
-            print(modifiedMessage)
-            sendCommand = "osascript sendMessage.applescript -%s -%s"%(int(num), str(modifiedMessage))
+            sendCommand = "osascript sendMessage.applescript %s %s"%(int(num), str(modifiedMessage))
             os.system(sendCommand)
-            print("Message sent to:", num)
+            print(".", end="")
         # print without newline
         print(" DONE")
+        print("Contacted:", whitelist)
 
     # END FORWARDING TO WHITE LISTED NUMBERS
 
