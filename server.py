@@ -67,14 +67,16 @@ async def get_body(request: Request):
     print(f"Message from Jared: {message}")
 
     # Write to the log file before the message is interpreted.
-    with open("log.txt", "a") as log: # nothing fancy, plaintext
+    with open("log.txt", "r+") as log: # nothing fancy, plaintext
         # get size of log file in kilobytes
         logSize = os.path.getsize("log.txt") / 1000
         if logSize > 1000: # 1000kb
             log.truncate(0)
-        # write the message to the log file.
-        log.write(str(datetime.datetime.now()) + " : " + str(message))
-        log.write("\n")
+        # write messages to the top of the log file
+        content = log.read()
+        log.seek(0, 0)
+        log.write(f"{datetime.datetime.now()} {message}" + "\n" + content)
+        log.close()
 
     # BEGIN FORWARDING TO WHITE LISTED NUMBERS
 
