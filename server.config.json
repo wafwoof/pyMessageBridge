@@ -1,6 +1,6 @@
 {
-    "techphoneNumber": 5555555555,
+    "techphoneNumber": "+15555555555",
     "managerWhitelist": [],
     "textCommandSymbol": "¥",
-    "forwardOutgoingMessages": true
+    "forwardOutgoingMessages": false
 }

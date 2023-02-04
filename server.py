@@ -50,7 +50,7 @@ app.add_middleware(
 
 def sendMessage(num, message):
     try:
-        os.system("osascript sendMessage.applescript %s %s"%(int(num), str(message)))
+        os.system("osascript sendMessage.scpt %s %s"%(int(num), str(message)))
     except Exception as error:
         print("Error sending message:", error)
         raise error
@@ -62,8 +62,9 @@ async def get_body(request: Request):
     handle = data.get("sender")["handle"]
     recipient = data.get("recipient")["handle"]
     global message
-    message = (handle, "SENT:", data.get("body")["message"])
-    print(message)
+    message = data.get("body")["message"]
+    message = (f"{handle} SENT: {message}")
+    print(f"Message from Jared: {message}")
 
     # Write to the log file before the message is interpreted.
     with open("log.txt", "a") as log: # nothing fancy, plaintext
@@ -79,8 +80,8 @@ async def get_body(request: Request):
 
     # Check to see if the message is a command.
     if data.get("body")["message"][0][:1] == config["textCommandSymbol"]:
-        pass # Forwarding commands is handled by the command interpreter.
-    elif config["forwardOutgoingMessages"] == False:
+        pass
+    elif handle == config["techphoneNumber"] and config["forwardOutgoingMessages"] == False:
         print("Outgoing messages are not being forwarded. This behavior can be changed in server.config.json")
         pass
     elif handle == recipient:
@@ -89,10 +90,8 @@ async def get_body(request: Request):
     else:
         # Forward incoming tech phone messages to numbers contained in the whitelist.
         print("Forwarding message to whitelist", end="")
-        modifiedMessage = ("\"" + handle + " SENT: " + message + "\"")
         for num in whitelist:
-            sendCommand = "osascript sendMessage.applescript %s %s"%(int(num), str(modifiedMessage))
-            os.system(sendCommand)
+            sendMessage(num, message)
             print(".", end="")
         # print without newline
         print(" DONE")
