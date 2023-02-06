@@ -48,24 +48,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# SEND MESSAGES
 def sendMessage(num, message):
     try:
-        os.system("osascript sendMessage.scpt %s %s"%(int(num), str(message)))
+        os.system("osascript sendMessage.scpt %s %s"%(str(num), str(message)))
     except Exception as error:
         print("Error sending message:", error)
         raise error
 
-# RECEIVE JARED WEBHOOK
-@app.post("/forward")
-async def get_body(request: Request):
-    data = await request.json()
-    handle = data.get("sender")["handle"]
-    recipient = data.get("recipient")["handle"]
-    global message
-    message = data.get("body")["message"]
-    message = (f"{handle} SENT: {message}")
-    print(f"Message from Jared: {message}")
-
+# LOG MESSAGES
+def message_log(message):
     # Write to the log file before the message is interpreted.
     with open("log.txt", "r+") as log: # nothing fancy, plaintext
         # get size of log file in kilobytes
@@ -73,78 +65,100 @@ async def get_body(request: Request):
         if logSize > 1000: # 1000kb
             log.truncate(0)
         # write messages to the top of the log file
-        content = log.read()
+        existingLogEntries = log.read()
         log.seek(0, 0)
-        log.write(f"{datetime.datetime.now()} {message}" + "\n" + content)
+        log.write(f"{datetime.datetime.now()} {message}" + "\n" + existingLogEntries)
         log.close()
 
-    # BEGIN FORWARDING TO WHITE LISTED NUMBERS
-
+# FORWARD MESSAGES
+def message_forward_handler(message):
     # Check to see if the message is a command.
-    if data.get("body")["message"][0][:1] == config["textCommandSymbol"]:
+    if message['content'][0][:1] == config["textCommandSymbol"]:
         pass
-    elif handle == config["techphoneNumber"] and config["forwardOutgoingMessages"] == False:
+    elif message['senderHandle'] == config["techphoneNumber"] and config["forwardOutgoingMessages"] == False:
         print("Outgoing messages are not being forwarded. This behavior can be changed in server.config.json")
         pass
-    elif handle == recipient:
+    elif message['senderHandle'] == message['recipientHandle']:
         print("Phone texted itself. Ignoring.")
         pass
     else:
         # Forward incoming tech phone messages to numbers contained in the whitelist.
         print("Forwarding message to whitelist", end="")
         for num in whitelist:
-            sendMessage(num, message)
-            print(".", end="")
-        # print without newline
+            sendMessage(num, message['content'])
+            print(".", end="") # print without newline
         print(" DONE")
         print("Contacted:", whitelist)
 
-    # END FORWARDING TO WHITE LISTED NUMBERS
-
-    # INTERPRET COMMANDS
-    if data.get("body")["message"][0][:1] == config["textCommandSymbol"]: # command symbol is ¥ by default.
-        print("Command detected.")
-        command = data.get("body")["message"][1:] # chop off the ¥ symbol.
-        print("Command:", command)
+# INTERPRET COMMANDS
+def message_command_interpretter(message):
+    if message['content'][0][:1] == config["textCommandSymbol"]: # command symbol is ¥ by default.
+        command = message['content'][1:] # chop off the ¥ symbol.
+        print("Command detected:", command)
         # COMMAND LIST
         if command in ["antiquing"]: # shutdown the server.
             os.system("kill -9 $(ps -A | grep python | awk '{print $1}')")
             print("Server shutdown by remote text command.")
         elif command in ["help", "help ", "?"]: # get a list of commands.
-            message = repr("¥help - View this message. ¥whitelist - Whitelist the number you send this from. ¥unwhitelist - Remove your number from the whitelist. ¥seewhitelist - View whitelisted numbers. ¥clearwhitelist - Clear out the whitelist. ¥weather - Get an overview of the weather. ¥random - Get a random word from the dictionary.")
-            sendMessage(handle, message)
+            response = repr("Commands: ¥help, ¥whitelist, ¥unwhitelist, ¥seewhitelist, ¥clearwhitelist, ¥weather, ¥random")
+            sendMessage(message['senderHandle'], response)
         elif command in ["whitelist", "whitelist "]: # add a number to the whitelist.
-            whitelist.append(handle)
-            message = repr("Your number is now on the whitelist.")
-            sendMessage(handle, message)
+            whitelist.append(message['senderHandle'])
+            response = repr("Your number is now on the whitelist.")
+            sendMessage(message['senderHandle'], response)
         elif command in ["unwhitelist", "unwhitelist "]: # remove your number from the whitelist.
-            whitelist.remove(handle)
-            message = repr("Your number has been removed from the whitelist.")
-            sendMessage(handle, message)
+            whitelist.remove(message['senderHandle'])
+            response = repr("Your number has been removed from the whitelist.")
+            sendMessage(message['senderHandle'], response)
         elif command in ["seewhitelist", "seewhitelist "]: # view the whitelist.
-            message = repr(whitelist)
-            sendMessage(handle, message)
+            response = repr(whitelist)
+            sendMessage(message['senderHandle'], response)
         elif command in ["clearwhitelist", "clearwhitelist "]: # clear the whitelist.
             whitelist.clear()
-            message = repr("Whitelist Cleared.")
-            sendMessage(handle, message)
+            response = repr("Whitelist Cleared.")
+            sendMessage(message['senderHandle'], response)
         elif command in["weather", "weather "]: # get the weather.
-            temp = requests.get("https://wttr.in/Vancouver?format=4").text[0:30]
-            print("Temperature:", repr(temp))
-            message = repr(temp)
-            sendMessage(handle, message)
+            temp = requests.get("https://wttr.in/Vancouver?format=4").text[0:31]
+            print("Weather:", repr(temp))
+            response = repr(temp)
+            sendMessage(message['senderHandle'], response)
         elif command in ["random", "random "]: # get a random word.
             # get a random word from a dictionary api.
             word = requests.get("https://random-word-api.herokuapp.com/word?number=1").text[2:-2]
-            message = repr("Your Word Is: " + "'" + word + "'")
-            sendMessage(handle, message)
+            response = repr("Your Word Is: " + "'" + word + "'")
+            sendMessage(message['senderHandle'], response)
         else: # if the command is not recognized, return an error.
             print("Command not recognized.")
             # Do not send an error message, this will use up resources and you can solve your own problems.
             #message = repr("Command not recognized.")
             #sendMessage(handle, message)
 
-    # END INTERPRET COMMANDS
+# RECEIVE JARED WEBHOOK
+@app.post("/forward")
+async def get_body(request: Request):
+    data = await request.json()
+
+    senderHandle = data.get("sender")["handle"]
+    recipientHandle = data.get("recipient")["handle"]
+    content = data.get("body")["message"]
+
+    # constructed message dict
+    message = {
+        "senderHandle": senderHandle,
+        "recipientHandle": recipientHandle,
+        "content": content
+    }
+
+    print(f"{message['senderHandle']} -> {message['recipientHandle']}: {message['content']}")
+
+    # message log function
+    message_log(message)
+    # message forwarding function
+    message_forward_handler(message)
+    # message command interpretter function
+    message_command_interpretter(message)
+
+
 # END RECEIVE JARED WEBHOOK
 
 
