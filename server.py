@@ -1,11 +1,11 @@
 # iMessage Forwading Server (requires: MacOS 10.15+ & jared & python 3+)
-# Version: 0.1.0
+# Version: 0.1.1
 # Written by: Kazei McQuaid
 # Admin Panel: http://127.0.0.1:8000/admin
 # Submit requests to: http://127.0.0.1:8000/forward
 
 if __name__ == '__main__':
-    print("\npyMessageBridge Version 0.1.0 ")
+    print("\npyMessageBridge Version 0.1.1 ")
     print("Incorrect usage. Please run the server with the following command:")
     print("\"python3 -m uvicorn server:app\"")
     print("For more information, please visit: https://www.github.com/wafwoof/pyMessageBridge")
@@ -19,6 +19,7 @@ import json
 import os
 import requests
 import datetime
+import threading
 
 print("\nThe server is starting...")
 
@@ -122,7 +123,6 @@ def message_command_interpretter(message):
             sendMessage(message['senderHandle'], response)
         elif command in["weather", "weather "]: # get the weather.
             temp = requests.get("https://wttr.in/Vancouver?format=4").text[0:31]
-            print("Weather:", repr(temp))
             response = repr(temp)
             sendMessage(message['senderHandle'], response)
         elif command in ["random", "random "]: # get a random word.
@@ -135,6 +135,15 @@ def message_command_interpretter(message):
             # Do not send an error message, this will use up resources and you can solve your own problems.
             #message = repr("Command not recognized.")
             #sendMessage(handle, message)
+
+# MESSAGE HANDLER THREAD
+def message_handler(message):
+    # message log function
+    message_log(message)
+    # message forwarding function
+    message_forward_handler(message)
+    # message command interpretter function
+    message_command_interpretter(message)
 
 # RECEIVE JARED WEBHOOK
 @app.post("/forward")
@@ -158,13 +167,11 @@ async def get_body(request: Request):
 
     print(f"{message['senderHandle']} -> {message['recipientHandle']}: {message['content']}")
 
-    # message log function
-    message_log(message)
-    # message forwarding function
-    message_forward_handler(message)
-    # message command interpretter function
-    message_command_interpretter(message)
-
+    #message_handler(message) # offload message handling to another thread.
+    message_handler_thread = threading.Thread(target=message_handler, args=(message,))
+    message_handler_thread.start()
+    #print(threading.active_count())
+    #message_handler_thread.join()
 
 # END RECEIVE JARED WEBHOOK
 
@@ -206,7 +213,7 @@ def delete_whitelist():
 
 
 # Console Log
-print("\npyMessageBridge Version 0.1.0 - Current date/time: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+print("\npyMessageBridge Version 0.1.1 - Current date/time: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 print("Visit: http://localhost:8000/admin to get started!\n")
 print("THIS IS DEVELOPMENT SOFTWARE AND COMES WITH ABSOLUTELY NO WARRANTY.\n")
 print("Available Text Commands:")

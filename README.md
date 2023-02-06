@@ -1,20 +1,28 @@
-# pyMessageBridge v0.1.0
+# pyMessageBridge v0.1.1
 ## An iMessage Communication Bridge (requires: MacOS & jared)
 
-pyMessageBridge functions as an abstraction layer for [Jared](https://github.com/ZekeSnider/Jared).
-Designed as a simple approach to forwarding iPhone messages to a small to medium sized team.
-It allows advanced users without a programming background to get power features out of their existing devices.
+The purpose of pyMessageBridge is to allow a small - medium sized team to share a single iPhone's messages.
 
-Features of pyMessageBridge:
-- An easy way to share messages to multiple numbers
-- Web admin panel for adding numbers to the whitelist
+pyMessageBridge is an abstraction layer for [Jared](https://github.com/ZekeSnider/Jared).
+Anything that Jared can do (including commands) can be done here. Jared however, does not support forwarding to my knowledge. And that's where this project comes into play.
+
+Features of pyMessageBridge 0.1.1:
+
+- Very configurable
+- Support for threads to offload message handling
+- Improved console & log formatting
+- Web panel for adding numbers to the whitelist
     - http://localhost:8000/admin
-- Local & remote message log file (MacOS rightly blocks it by default, I will leave this up to the end-user)
--  A remote command feature that works by sending a "¥" character followed by a pre-determined command (Covered in more detail below)
 
 ![pyMessageBridge Admin Panel](/static/Screen%20Shot%202023-01-29%20at%2011.14.17%20PM.png)
 
-A very basic graphical overview for those who want it.
+*The basic web interface.*
+
+#### How to use (for human beings)
+
+To add yourself to the whitelist at the start of your shift by texting `¥whitelist` to the tech phone. You will now receive all messages. 
+To respond to a request: simply text the tech phone, and all staff will be alerted. This increases team awareness, and reaction time.
+At the end of the day simply `¥unwhitelist` yourself, or a manager can issue `¥clearwhitelist` to remove all phone numbers at the end of the day. `¥seewhitelist` to verify that it's empty. That's it!
 
 ## How to setup
 
@@ -66,16 +74,14 @@ Config settings are in: `/pyMessageBridge/server.config.txt`.
 
 ## Text commands
 
-**Security warning!** Change the default commands in the server to avoid anyone being able to take it down. The default character ( ¥ ) can also be changed to anything you like.
+**Security warning!** Change the defaults in server.config.json.
 
-There are currently 7 primary commands:
+There are currently 5 primary commands:
 - ¥help 
 - ¥whitelist 
 - ¥unwhitelist 
 - ¥seewhitelist
 - ¥clearwhitelist
-- ¥weather
-- ¥random
 
 ## Planned features
 
@@ -83,3 +89,18 @@ There are currently 7 primary commands:
 - Proper reliabilty stress testing
 - Teams integration
 - Admin panel tunneling for remote login
+
+## Releases
+
+#### pyMessageBridge v0.1.0
+
+Features of pyMessageBridge 0.1.0:
+- An easy way to share messages to multiple numbers
+- Web admin panel for adding numbers to the whitelist
+    - http://localhost:8000/admin
+- Local & remote message log file (MacOS rightly blocks it by default, I will leave this up to the end-user)
+-  A remote command feature that works by sending a "¥" character followed by a pre-determined command (Covered in more detail below)
+
+![pyMessageBridge Admin Panel](/static/Screen%20Shot%202023-01-29%20at%2011.14.17%20PM.png)
+
+*A very basic graphical overview for those who want it.*
