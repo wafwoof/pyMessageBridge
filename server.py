@@ -83,18 +83,21 @@ def message_forward_handler(message):
         pass
     else:
         # Forward incoming tech phone messages to numbers contained in the whitelist.
+        print(f"\033[32mForwarding\033[0m" + ": ", end="")
         print("Forwarding message to whitelist", end="")
         for num in whitelist:
             sendMessage(num, message['content'])
             print(".", end="") # print without newline
         print(" DONE")
-        print("Contacted:", whitelist)
+        print(f"\033[32mForwarding\033[0m" + ": ", end="")
+        print("Contacted:", whitelist, "Total:", len(whitelist))
 
 # INTERPRET COMMANDS
 def message_command_interpretter(message):
     if message['content'][0][:1] == config["textCommandSymbol"]: # command symbol is ¥ by default.
         command = message['content'][1:] # chop off the ¥ symbol.
-        print("Command detected:", command)
+        print(f"\033[33mCommand\033[0m" + ": ", end="")
+        print(command)
         # COMMAND LIST
         if command in ["antiquing"]: # shutdown the server.
             os.system("kill -9 $(ps -A | grep python | awk '{print $1}')")
@@ -148,6 +151,10 @@ async def get_body(request: Request):
         "recipientHandle": recipientHandle,
         "content": content
     }
+
+    # print the word "info" in green
+    print(f"\n\033[32mJared\033[0m" + ": ", end="")
+
 
     print(f"{message['senderHandle']} -> {message['recipientHandle']}: {message['content']}")
 

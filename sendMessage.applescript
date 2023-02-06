@@ -5,7 +5,7 @@ on run {targetBuddyPhone, targetMessage}
         set targetService to 1st service whose service type = iMessage
         set targetBuddy to buddy targetBuddyPhone of targetService
         send targetMessage to targetBuddy
-        log "Completed Sending Message."
+        log "AppleScript: Sent message to " & targetBuddyPhone & " with text: " & targetMessage
     end tell
 
 end run
