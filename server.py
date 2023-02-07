@@ -52,7 +52,7 @@ app.add_middleware(
 # SEND MESSAGES
 def sendMessage(num, message):
     try:
-        os.system("osascript sendMessage.scpt %s %s"%(str(num), str(message)))
+        os.system(f"osascript sendMessage.scpt {str(num)} \"{str(message)}\"")
     except Exception as error:
         print("Error sending message:", error)
         raise error
