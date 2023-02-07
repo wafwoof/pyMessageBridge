@@ -9,8 +9,8 @@ Anything that Jared can do (including commands) can be done here. Jared however,
 Features of pyMessageBridge 0.1.1:
 
 - Very configurable
-- Support for threads to offload message handling
-- Improved console & log formatting
+- Removal of threading. Caused too many problems in testing
+- Improved Command response, console, and log formatting
 - Web panel for adding numbers to the whitelist
     - http://localhost:8000/admin
 
