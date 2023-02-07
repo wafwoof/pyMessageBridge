@@ -86,8 +86,9 @@ def message_forward_handler(message):
         # Forward incoming tech phone messages to numbers contained in the whitelist.
         print(f"\033[32mForwarding\033[0m" + ": ", end="")
         print("Forwarding message to whitelist", end="")
+        formattedMessage = f"{message['senderHandle']}: {message['content']}"
         for num in whitelist:
-            sendMessage(num, message['content'])
+            sendMessage(num, formattedMessage)
             print(".", end="") # print without newline
         print(" DONE")
         print(f"\033[32mForwarding\033[0m" + ": ", end="")
