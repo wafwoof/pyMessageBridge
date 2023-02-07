@@ -4,14 +4,14 @@
 The purpose of pyMessageBridge is to allow a small - medium sized team to share a single iPhone's messages.
 
 pyMessageBridge is an abstraction layer for [Jared](https://github.com/ZekeSnider/Jared).
-Anything that Jared can do (including commands) can be done here. Jared however, does not support forwarding to my knowledge. And that's where this project comes into play.
+Anything that Jared can do (including commands) can be done here. Jared however; does not support forwarding to my knowledge. And that is where this project comes into play.
 
 Features of pyMessageBridge 0.1.1:
 
-- Very configurable
-- Removal of threading. Caused too many problems in testing
-- Improved Command response, console, and log formatting
-- Web panel for adding numbers to the whitelist
+- Very configurable.
+- Removal of threading. Caused too many problems in testing.
+- Improved Command response, console, and log formatting.
+- Web panel for adding numbers to the whitelist.
     - http://localhost:8000/admin
 
 ![pyMessageBridge Admin Panel](/static/Screen%20Shot%202023-01-29%20at%2011.14.17%20PM.png)
@@ -35,7 +35,9 @@ Before you do anything else: disable mac power settings in system preferences to
 ![Jared Main Settings](/jared/JARED_EXAMPLE.png)
 
 - After installing: replace ~/Library/Application Support/Jared/config.json with included backup file in /jared/
-- Reboot Jared
+    - `cp .../pyMessageBridge/jared/backup_jared_config.json ~/Library/Application\ Support/Jared/config.json`
+- Reboot Jared.
+    - (Rebooting your Mac frequently solves lots of small issues from experience)
 
 Jared is now configured and is already sending messages.
 
@@ -71,6 +73,16 @@ Troubleshooting tips:
 That's it! You now have a working pyMessageBridge server.
 
 Config settings are in: `/pyMessageBridge/server.config.txt`. 
+
+## iMessage Authentication on Mac
+On some machines this is easy, on others it is an extremely difficult task. What worked for me was:
+- Resetting NVRAM.
+    - `cmd + alt + P + R` while turning on.
+- Clearing iMessage related keys in keychain access.
+- Waiting 24-hours.
+- Calling Apple Support.
+
+As stated above: this was no problem in one case, and wildly daunting in another. Feel free to reach out to me for troubleshooting help.
 
 ## Text commands
 
