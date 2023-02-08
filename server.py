@@ -13,6 +13,7 @@ if __name__ == '__main__':
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import json
@@ -76,6 +77,7 @@ def message_forward_handler(message):
     if message['content'][0][:1] == config["textCommandSymbol"]:
         pass
     elif message['senderHandle'] == config["techphoneNumber"] and config["forwardOutgoingMessages"] == False:
+        print(f"\033[33mForwarding\033[0m" + ": ", end="")
         print("Outgoing messages are not being forwarded. This behavior can be changed in server.config.json")
         pass
     elif message['senderHandle'] == message['recipientHandle']:
@@ -93,6 +95,8 @@ def message_forward_handler(message):
         print(f"\033[32mForwarding\033[0m" + ": ", end="")
         print("Contacted:", whitelist, "Total:", len(whitelist))
 
+# END FORWARD MESSAGES
+
 # INTERPRET COMMANDS
 def message_command_interpretter(message):
     if message['content'][0][:1] == config["textCommandSymbol"]: # command symbol is ¥ by default.
@@ -104,24 +108,24 @@ def message_command_interpretter(message):
             os.system("kill -9 $(ps -A | grep python | awk '{print $1}')")
             print("Server shutdown by remote text command.")
         elif command in ["help", "help ", "?"]: # get a list of commands.
-            response = repr("Commands: ¥help, ¥whitelist, ¥unwhitelist, ¥seewhitelist, ¥clearwhitelist, ¥weather, ¥random")
+            response = "Commands: ¥help, ¥whitelist, ¥unwhitelist, ¥seewhitelist, ¥clearwhitelist, ¥weather, ¥random"
         elif command in ["whitelist", "whitelist "]: # add a number to the whitelist.
             whitelist.append(message['senderHandle'])
-            response = repr("Your number is now on the whitelist.")
+            response = "Your number is now on the whitelist."
         elif command in ["unwhitelist", "unwhitelist "]: # remove your number from the whitelist.
             whitelist.remove(message['senderHandle'])
-            response = repr("Your number has been removed from the whitelist.")
+            response = "Your number has been taken off the whitelist."
         elif command in ["seewhitelist", "seewhitelist "]: # view the whitelist.
-            response = repr(whitelist)
+            response = f"Whitelist: {whitelist}"
         elif command in ["clearwhitelist", "clearwhitelist "]: # clear the whitelist.
             whitelist.clear()
-            response = repr("Whitelist Cleared.")
+            response = "Whitelist Cleared."
         elif command in["weather", "weather "]: # get the weather.
             response = requests.get("https://wttr.in/~main+vancouver?format=4").text[5:-1]
         elif command in ["random", "random "]: # get a random word.
             # get a random word from a dictionary api.
             word = requests.get("https://random-word-api.herokuapp.com/word?number=1").text[2:-2]
-            response = repr(f"Your Word Is: {word}")
+            response = f"Your Word Is: {word}"
         else: # if the command is not recognized, return an error.
             print("Command not recognized.")
             # Do not send an error message, this will use up resources and you can solve your own problems.
@@ -149,11 +153,15 @@ async def get_body(request: Request):
     senderHandle = data.get("sender")["handle"]
     recipientHandle = data.get("recipient")["handle"]
     content = data.get("body")["message"]
+    datetime = data.get("date") # time: 2023-02-08T01:31:16.000Z
+    # time = time - first 10 characters are date, last 5 are time, and the middle is a T
+    time = datetime[11:19] # time: 24hr format
 
     # constructed message dict
     message = {
         "senderHandle": senderHandle,
         "recipientHandle": recipientHandle,
+        "time": time,
         "content": content
     }
 
@@ -161,15 +169,17 @@ async def get_body(request: Request):
     print(f"\n\033[32mJared\033[0m" + ": ", end="")
 
 
-    print(f"{message['senderHandle']} -> {message['recipientHandle']}: {message['content']}")
+    print(f"{message['senderHandle']} -> {message['recipientHandle']} @ {message['time']}: {message['content']}")
 
-    message_handler(message)
-    #message_handler_thread = threading.Thread(target=message_handler, args=(message,))
-    #message_handler_thread.start()
+    message_handler(message) # passoff to the main message router and handler function
 
-    #print(threading.active_count())
-    #message_handler_thread.join()
-
+    response = json.dumps({
+        "success": True,
+        "body": {   
+            "message": "We're on each other's team" 
+        }
+    })
+    return JSONResponse(status_code=200, content=response)
 # END RECEIVE JARED WEBHOOK
 
 
