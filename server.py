@@ -60,7 +60,7 @@ def sendMessage(num, message):
 # LOG MESSAGES
 def message_log(message):
     # Write to the log file before the message is interpreted.
-    with open("log.txt", "r+") as log: # nothing fancy, plaintext
+    with open("log.txt", "r+") as log:
         # get size of log file in kilobytes
         logSize = os.path.getsize("log.txt") / 1000
         if logSize > 1000: # 1000kb
@@ -121,10 +121,18 @@ def message_command_interpretter(message):
             whitelist.clear()
             response = "Whitelist Cleared."
         elif command in["weather", "weather "]: # get the weather.
-            response = requests.get("https://wttr.in/~main+vancouver?format=4").text[5:-1]
+            try:
+                response = requests.get("https://wttr.in/~main+vancouver?format=4").text[5:-1]
+            except Exception as error:
+                print(error)
+                response = "There was an error, please try again later."
         elif command in ["random", "random "]: # get a random word.
             # get a random word from a dictionary api.
-            word = requests.get("https://random-word-api.herokuapp.com/word?number=1").text[2:-2]
+            try:
+                word = requests.get("https://random-word-api.herokuapp.com/word?number=1").text[2:-2]
+            except Exception as error:
+                print(error)
+                response = "There was an error, please try again later."
             response = f"Your Word Is: {word}"
         else: # if the command is not recognized, return an error.
             print("Command not recognized.")
@@ -223,6 +231,7 @@ def delete_whitelist():
 print("\npyMessageBridge Version 0.1.1 - Current date/time: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 print("Visit: http://localhost:8000/admin to get started!\n")
 print("THIS IS DEVELOPMENT SOFTWARE AND COMES WITH ABSOLUTELY NO WARRANTY.\n")
+print("Tech Phone Number: ", config["techphoneNumber"])
 print("Available Text Commands:")
 print("¥help, ¥whitelist, ¥unwhitelist, ¥seewhitelist, ¥clearwhitelist, ¥weather, ¥random\n")
 print("Available Endpoints:")
