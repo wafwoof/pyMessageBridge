@@ -14,7 +14,7 @@ Features of pyMessageBridge 0.1.1:
 - Web panel for adding numbers to the whitelist.
     - http://localhost:8000/admin
 
-![pyMessageBridge Admin Panel](/static/Screen%20Shot%202023-01-29%20at%2011.14.17%20PM.png)
+![pyMessageBridge Admin Panel](/documentation/webimage1.png)
 
 *The basic web interface.*
 
