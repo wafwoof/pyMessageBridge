@@ -1,3 +1,4 @@
+![release](https://img.shields.io/badge/release-v0.1.2-lightgrey) ![Tested Python Version](https://img.shields.io/badge/python-3.11-blue) ![jared](https://img.shields.io/badge/jared-compatible-green)
 # pyMessageBridge v0.1.2
 ## An iMessage Communication Bridge (requires: MacOS & ~~jared~~)
 
