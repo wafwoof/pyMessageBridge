@@ -115,5 +115,5 @@ while True:
         except Exception as error:
             print("Error: ", error)
     else:
-        # wait 1 second
-        time.sleep(1)
+        # wait 1 ms
+        time.sleep(0.001)
