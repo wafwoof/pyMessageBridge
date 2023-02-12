@@ -96,7 +96,7 @@ def getLastMessage():
         return None
 # END getLastMessage()
 
-print("\033[92mnoJared: \033[0m", end="")
+print("\033[92mnoJared v0.1\033[0m", end=": ")
 print(f"Monitoring {path} for new messages...")
 
 row_id = cursor.execute('select ROWID from message order by ROWID desc limit 1').fetchone()[0]
@@ -108,12 +108,14 @@ while True:
             if lastMessage == None:
                 continue
             else:
-                #print("\n\033[92mnoJared: \033[0m", end="")
+                print("\n\033[92m@noJared \033[0m", end="")
                 #print(f"#{row_id} {lastMessage}")
                 requests.post("http://127.0.0.1:8000/forward", json=lastMessage)
                 row_id += 1
         except Exception as error:
             print("Error: ", error)
     else:
+        # slower speeds increase dropped messages
+        # todo: implement queue system in server.py
         # wait 1 ms
         time.sleep(0.001)
