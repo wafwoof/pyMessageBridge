@@ -1,1 +1,1 @@
-kill -9 $(ps -A | grep python | awk '{print $1}')
+sudo lsof -t -i tcp:8000 | xargs kill -9

@@ -1,13 +1,14 @@
-## How to setup Jared.
+#### How to Install Jared:
+*Note:* I strongly recommend using noJared as it is much faster.
 
-First: disable mac sleeping in system preferences to prevent the server from
-going to sleep.
+- A tested version can be found in ./jared/ unzip it.
+- Enable Jared, disable sending messages, enable REST API, do not add a contacts list.
 
-- unzip jared
-- install jared
-- enable jared, disable sending messages, enable REST API, disable contacts
-- replace ~/Library/Application Support/Jared/config.json with included backup file
+![Jared Main Settings](/jared/JARED_EXAMPLE.png)
 
-That is the minimal setup for jared to start sending messages to the FastAPI Server.
+- After installing: replace ~/Library/Application Support/Jared/config.json with included backup file in /jared/
+    - `cp .../pyMessageBridge/jared/backup_jared_config.json ~/Library/Application\ Support/Jared/config.json`
+- Reboot Jared.
+    - (Rebooting your Mac frequently solves lots of small issues from experience)
 
-Don't forget to setup the whitelist list!
+Jared is now configured and is already sending messages.

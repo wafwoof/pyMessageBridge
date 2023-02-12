@@ -1,11 +1,11 @@
-# iMessage Forwading Server (requires: MacOS 10.15+ & jared & python 3+)
-# Version: 0.1.1, hotfix 2
+# iMessage Forwading Server (requires: MacOS 10.15+ & python 3+)
+# Version: 0.1.2 (noJared 0.1)
 # Written by: Kazei McQuaid
 # Admin Panel: http://127.0.0.1:8000/admin
 # Submit requests to: http://127.0.0.1:8000/forward
 
 if __name__ == '__main__':
-    print("\npyMessageBridge Version 0.1.1 ")
+    print("\npyMessageBridge Version 0.1.2 ")
     print("Incorrect usage. Please run the server with the following command:")
     print("\"python3 -m uvicorn server:app\"")
     print("For more information, please visit: https://www.github.com/wafwoof/pyMessageBridge")
@@ -74,9 +74,9 @@ def message_log(message):
 # FORWARD MESSAGES
 def message_forward_handler(message):
     # Check to see if the message is a command.
-    if message['content'][0][:1] == config["textCommandSymbol"]:
+    if message["content"][0][:1] == config["textCommandSymbol"]:
         pass
-    elif message['senderHandle'] == config["techphoneNumber"] and config["forwardOutgoingMessages"] == False:
+    elif message["senderHandle"] == config["techphoneNumber"] and config["forwardOutgoingMessages"] == False:
         print(f"\033[33mForwarding\033[0m" + ": ", end="")
         print("Outgoing messages are not being forwarded. This behavior can be changed in server.config.json")
         pass
@@ -107,8 +107,8 @@ def message_command_interpretter(message):
         if command in ["antiquing"]: # shutdown the server.
             os.system("kill -9 $(ps -A | grep python | awk '{print $1}')")
             print("Server shutdown by remote text command.")
-        elif command in ["help", "help ", "?"]: # get a list of commands.
-            response = "Commands: ¥help, ¥whitelist, ¥unwhitelist, ¥seewhitelist, ¥clearwhitelist, ¥weather, ¥random"
+        elif command in ["help", "help "]: # get a list of commands.
+            response = "Commands: ¥help, ¥whitelist, ¥unwhitelist, ¥seewhitelist, ¥clearwhitelist"
         elif command in ["whitelist", "whitelist "]: # add a number to the whitelist.
             whitelist.append(message['senderHandle'])
             response = "Your number is now on the whitelist."
@@ -228,7 +228,7 @@ def delete_whitelist():
 
 
 # Console Log
-print("\npyMessageBridge Version 0.1.1 - Current date/time: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+print("\npyMessageBridge Version 0.1.2 - Current date/time: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
 print("Visit: http://localhost:8000/admin to get started!\n")
 print("THIS IS DEVELOPMENT SOFTWARE AND COMES WITH ABSOLUTELY NO WARRANTY.\n")
 print("Tech Phone Number: ", config["techphoneNumber"])
