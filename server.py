@@ -110,7 +110,14 @@ def message_command_interpretter(message):
         elif command in ["help", "help "]: # get a list of commands.
             response = "Commands: ¥help, ¥whitelist, ¥unwhitelist, ¥seewhitelist, ¥clearwhitelist"
         elif command in ["whitelist", "whitelist "]: # add a number to the whitelist.
-            whitelist.append(message['senderHandle'])
+            if message['senderHandle'] in whitelist:
+                response = "Your number is already on the whitelist."
+            elif message['senderHandle'] in config["managerWhitelist"]:
+                response = "Your number is already on the whitelist."
+            elif message['senderHandle'] == config["techphoneNumber"]:
+                response = "Cannot whitelist the tech phone number."
+            else:
+                whitelist.append(message['senderHandle'])
             response = "Your number is now on the whitelist."
         elif command in ["unwhitelist", "unwhitelist "]: # remove your number from the whitelist.
             whitelist.remove(message['senderHandle'])
