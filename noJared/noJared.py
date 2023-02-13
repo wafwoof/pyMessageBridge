@@ -112,10 +112,11 @@ while True:
         response = requests.post("http://127.0.0.1:8000/forward", json=lastMessage)
         if response.status_code == 200:          
             # print "noJared: " in green, then the row_id then the status code
-            print("\033[92mnoJared\033[0m:", f"#{row_id}", "->", response.status_code)
-
+            print("\033[92mnoJared\033[0m:", f"#{row_id}", "-->", response.status_code)
             row_id += 1
         else:
+            # print "noJared: " in red, then the row_id then the status code
+            print("\033[91mnoJared\033[0m:", f"#{row_id}", "-/->", response.status_code)
             print(response.status_code)
             continue
     else:
