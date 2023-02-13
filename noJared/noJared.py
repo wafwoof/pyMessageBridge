@@ -29,6 +29,10 @@ chatdb = sqlite3.connect(path, uri=True)
 
 cursor = chatdb.cursor()
 
+def getRowID():
+    return cursor.execute('select ROWID from message order by ROWID desc limit 1').fetchone()[0]
+
+
 def getLastMessage():
     # 1 - gather trackable data
     # stays the same between outgoing and incoming messages
@@ -99,28 +103,20 @@ def getLastMessage():
 print("\033[92mnoJared v0.1\033[0m", end=": ")
 print(f"Monitoring {path} for new messages...")
 
-row_id = cursor.execute('select ROWID from message order by ROWID desc limit 1').fetchone()[0]
+row_id = getRowID()
 while True:
-    if row_id != cursor.execute('select ROWID from message order by ROWID desc limit 1').fetchone()[0]:
-        
-        try:
-            lastMessage = getLastMessage()
-            if lastMessage == None:
-                continue
-            else:
-                #print(f"#{row_id} {lastMessage}")
-                response = requests.post("http://127.0.0.1:8000/forward", json=lastMessage)
-                # do not increment row_id if 200 is not received
-                if response.status_code == 200:
-                    row_id += 1
-                else:
-                    print("Message not sent. Trying again...")
-                    # try to send message again
-                    continue
-        except Exception as error:
-            print("Error: ", error)
+    if row_id != getRowID():
+        lastMessage = getLastMessage()
+        if lastMessage == None:
+            continue
+        response = requests.post("http://127.0.0.1:8000/forward", json=lastMessage)
+        if response.status_code == 200:          
+            # print "noJared: " in green, then the row_id then the status code
+            print("\033[92mnoJared\033[0m:", f"#{row_id}", "->", response.status_code)
+
+            row_id += 1
+        else:
+            print(response.status_code)
+            continue
     else:
-        # slower speeds increase dropped messages
-        # todo: implement queue system in server.py
-        # wait 1 ms
-        time.sleep(0.001)
+        time.sleep(0.001) # sleep for 1ms
