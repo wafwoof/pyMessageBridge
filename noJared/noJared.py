@@ -108,10 +108,15 @@ while True:
             if lastMessage == None:
                 continue
             else:
-                print("\n\033[92m@noJared \033[0m", end="")
                 #print(f"#{row_id} {lastMessage}")
-                requests.post("http://127.0.0.1:8000/forward", json=lastMessage)
-                row_id += 1
+                response = requests.post("http://127.0.0.1:8000/forward", json=lastMessage)
+                # do not increment row_id if 200 is not received
+                if response.status_code == 200:
+                    row_id += 1
+                else:
+                    print("Message not sent. Trying again...")
+                    # try to send message again
+                    continue
         except Exception as error:
             print("Error: ", error)
     else:
