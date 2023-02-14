@@ -15,7 +15,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
+#from fastapi.staticfiles import StaticFiles
 import json
 import os
 import requests
@@ -118,7 +118,7 @@ def message_command_interpretter(message):
                 response = "Cannot whitelist the tech phone number."
             else:
                 whitelist.append(message['senderHandle'])
-            response = "Your number is now on the whitelist."
+                response = "Your number is now on the whitelist."
         elif command in ["unwhitelist", "unwhitelist "]: # remove your number from the whitelist.
             whitelist.remove(message['senderHandle'])
             response = "Your number has been taken off the whitelist."
@@ -140,14 +140,14 @@ def message_command_interpretter(message):
             except Exception as error:
                 print(error)
                 response = "There was an error, please try again later."
-            response = f"Your Word Is: {word}"
+            finally:
+                response = f"Your Word Is: {word}"
         else: # if the command is not recognized, return an error.
             print("Command not recognized.")
             # Do not send an error message, this will use up resources and you can solve your own problems.
             #message = repr("Command not recognized.")
             #sendMessage(handle, message)
             return
-
 
         response = f"<{config['textCommandSymbol']}> {response}"
         sendMessage(message['senderHandle'], response)
