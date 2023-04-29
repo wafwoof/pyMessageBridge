@@ -101,6 +101,9 @@ def message_forward_handler(message):
 def message_command_interpretter(message):
     if message['content'][0][:1] == config["textCommandSymbol"]: # command symbol is ¥ by default.
         command = message['content'][1:] # chop off the ¥ symbol.
+        # remove everything after the first space.
+        if " " in command:
+            command = command[:command.find(" ")]
         print(f"\033[33mCommand\033[0m" + ": ", end="")
         print(command)
         # COMMAND LIST
@@ -142,6 +145,18 @@ def message_command_interpretter(message):
                 response = "There was an error, please try again later."
             finally:
                 response = f"Your Word Is: {word}"
+        elif command in ["send", "send "]: # send a message to a number.
+            # send a message to a number.
+            try:
+                # HAS NOT BEEN TESTED
+                number = command.split(" ")[1]
+                message = command.split(" ")[2:]
+                message = " ".join(message)
+                sendMessage(number, message)
+                response = f"Message sent to {number}."
+            except Exception as error:
+                print(error)
+                response = "There was an error, please try again later."
         else: # if the command is not recognized, return an error.
             print("Command not recognized.")
             # Do not send an error message, this will use up resources and you can solve your own problems.
